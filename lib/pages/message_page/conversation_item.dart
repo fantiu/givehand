@@ -17,16 +17,14 @@ class ConversationItem extends StatelessWidget {
       color: Color(AppColors.ConversationItemBg),
       child: InkWell(
         onTap: (){
-          print('打开会话:${conversationItemData.title}');
+          // index 第几个会话   type 会话类型
           Application.router.navigateTo(context, '/chatdetail?index=${index}&type=${type}');
-          
         },
         onTapDown: (TapDownDetails details) {
           tapPos = details.globalPosition;
         },
         onLongPress: (){
           _showMenu(context,tapPos);
-          print('弹出会话菜单:${conversationItemData.title}');
         },
         child: Container(
           height: ScreenUtil().setHeight(120),

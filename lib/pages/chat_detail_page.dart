@@ -22,18 +22,15 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   int index;
   Conversation data;
   _ChatDetailPageState(this.type,this.index);
-  var messageList = [
-    {'type':0,'text':'hello',},
-    {'type':1,'text':'hello',},
-  ];
+  var messageList = [];
   
   final controller = TextEditingController();
   void _handleSubmitted(String text) {
       if (controller.text.length > 0) {
-        print('发送${text}');
-        if(type == 1){
+        print('发送${text}, type $type , index $index' );
+        //if(type == 1){
           Provide.value<WebSocketProvide>(context).sendMessage(2,text,index);
-        }
+        //}
         setState(() {
           hasText = false;
           messageList.add({'type':1,'text':text,});
@@ -53,13 +50,15 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
   @override
   Widget build(BuildContext context) {
-    if(type ==1){
+    /*if(type ==1){
       data = Provide.value<WebSocketProvide>(context).messageList[index];
       print("message index: $index");
     }else{
       data = Conversation.mockConversations[index];
-      print("group index: $index");
-    }
+      // print("group index: $index");
+    }*/
+    data = Provide.value<WebSocketProvide>(context).messageList[index];
+
     return Scaffold(
       appBar: AppBar(
         centerTitle:true,

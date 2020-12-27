@@ -91,10 +91,6 @@ class IndexPage extends StatelessWidget {
                 _pageController.animateToPage(index,duration: Duration(milliseconds: 10),curve: Curves.easeInOut);
               },
             ),
-            // body:IndexedStack(
-            //   index: currentIndex,
-            //   children: tabBodies,
-            // ),
             body: PageView.builder(
               itemBuilder: (BuildContext context, int index){
                 return tabBodies[index];

@@ -17,16 +17,17 @@ class WebSocketProvide with ChangeNotifier{
   var currentMessageList = [];//选择进入详情页的消息历史记录
   var connecting = false;//websocket连接状态
   IOWebSocketChannel channel;
-  
-  
+
   init() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userInfo = prefs.getString('userInfo');
-    print(userInfo);
+    print("websocket init: $userInfo");
     if(userInfo == null){//弹出设置用户名
       var now = new DateTime.now();
+      /*
       print(now.millisecondsSinceEpoch);//单位毫秒，13位时间戳
       print(now.microsecondsSinceEpoch);//单位微秒,16位时间戳
+      */
       uid = "flutter_${now.microsecondsSinceEpoch}";
       nickname = "flutter_${Random().nextInt(100)}";
       var userInfoData = {
@@ -44,7 +45,7 @@ class WebSocketProvide with ChangeNotifier{
     // monitorMessage();
   }
   createWebsocket() async {//创建连接并且发送鉴别身份信息
-    channel = await new IOWebSocketChannel.connect('ws://121.40.96.121:3001');
+    channel = await new IOWebSocketChannel.connect('ws://swmabby.cn:3001');
     var obj = {
       "uid": uid,
       "type": 1,
@@ -62,17 +63,17 @@ class WebSocketProvide with ChangeNotifier{
   listenMessage(data){
     connecting = true;
     var obj = jsonDecode(data);
-    print(data);
+    print("websocket listen message: $data");
     if(obj['type'] == 1){ // 获取聊天室的人员与群列表
       messageList = [];
-      print(obj['msg']);
+      print("websocket listen message type1: $obj['msg']");
       users = obj['users'];
       groups = obj['groups'];
       for(var i = 0; i < groups.length; i++){
         messageList.add(new Conversation(
           avatar: 'assets/images/ic_group_chat.png',
           title: groups[i]['name'],
-          des: '点击进入聊天',
+          des: '点击进入聊天ing',
           updateAt: obj['date'].substring(11,16),
           unreadMsgCount: 0,
           displayDot: false,
@@ -80,23 +81,9 @@ class WebSocketProvide with ChangeNotifier{
           type: 2
         ));
       }
-      for(var i = 0; i < users.length; i++){
-        if(users[i]['uid'] != uid){
-          messageList.add(new Conversation(
-            avatar: 'assets/images/ic_group_chat.png',
-            title: users[i]['nickname'],
-            des: '点击进入聊天',
-            updateAt: obj['date'].substring(11,16),
-            unreadMsgCount: 0,
-            displayDot: false,
-            userId:users[i]['uid'],
-            type: 1
-          ));
-        }
-      }
     }else if (obj['type'] == 2){//接收到消息
       historyMessage.add(obj);
-      print(historyMessage);
+      print("websocket listen message type2 history message: $historyMessage");
       for(var i = 0; i < messageList.length; i++){
         if(messageList[i].userId != null){
           var count = 0;
@@ -127,8 +114,7 @@ class WebSocketProvide with ChangeNotifier{
     notifyListeners();
   }
   sendMessage(type,data,index){//发送消息
-    print(messageList[index].userId);
-    print(messageList[index].groupId);
+    print("websocket send message: userid: ${messageList[index].userId} , group id ${messageList[index].groupId}");
     var _bridge = [];
     if(messageList[index].userId != null){
       _bridge..add(messageList[index].userId)..add(uid);
@@ -137,7 +123,7 @@ class WebSocketProvide with ChangeNotifier{
     if(messageList[index].groupId != null){
       _groupId = messageList[index].groupId;
     }
-    print(_bridge);
+    // print(_bridge);
     var obj = {
       "uid": uid,
       "type": 2,
