@@ -33,7 +33,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         //}
         setState(() {
           hasText = false;
-          messageList.add({'type':1,'text':text,});
+          messageList.add({"type":1,"text":text.toString()});
         });
         controller.clear(); //清空输入框
         _jumpBottom();
@@ -57,7 +57,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       data = Conversation.mockConversations[index];
       // print("group index: $index");
     }*/
-    data = Provide.value<WebSocketProvide>(context).messageList[index];
+    //data = Provide.value<WebSocketProvide>(context).messageList[index];
+    data = Conversation.mockConversations[index];
 
     return Scaffold(
       appBar: AppBar(
@@ -78,39 +79,26 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             Provide<WebSocketProvide>(
               builder: (context,child,val){
                 List<Map<String, Object>>list = [];
-                if(type == 1){
                   print('llllll');
                   messageList = [];
-                  var historyMessage = Provide.value<WebSocketProvide>(context).historyMessage;
-                  for(var i = 0; i< historyMessage.length; i++){
+                  messageList = Provide.value<WebSocketProvide>(context).historyMessage;
+                  print(messageList);
+                  for(var i = 0; i< messageList.length; i++){
+                    print(messageList[i]);
                     if(data.userId != null){
-                      if(historyMessage[i]['bridge'].contains(data.userId)){
-                        if(historyMessage[i]['uid'] == data.userId){
-                          list.add({'type':0,'text':historyMessage[i]['msg'],'nickname':historyMessage[i]['nickname']});
-                        }else{
-                          list.add({'type':1,'text':historyMessage[i]['msg'],'nickname':historyMessage[i]['nickname']});
-                        }
-                      }
-                    }else if(data.groupId != null && data.groupId == historyMessage[i]['groupId'] && historyMessage[i]['bridge'].length==0){
+                          list.add({'type':messageList[i]['type'],'text':messageList[i]['text']});
+                    }else {
                       var uid = Provide.value<WebSocketProvide>(context).uid;
-                      if(historyMessage[i]['uid'] != uid ){
-                        list.add({'type':0,'text':historyMessage[i]['msg'],'nickname':historyMessage[i]['nickname']});
-                      }else{
-                        list.add({'type':1,'text':historyMessage[i]['msg'],'nickname':historyMessage[i]['nickname']});
-                      }
+                        list.add({'type':messageList[i]['type'],'text':messageList[i]['text']});
                     }
                   }
-                }
+
                 return Expanded(
                   child: ListView.builder(
                     controller: _scrollController,
                     physics: ClampingScrollPhysics(),
                     itemBuilder: (BuildContext context, int index) {
-                    if(type == 1){
-                      return ChatContentView(type:list[index]['type'],text:list[index]['text'],avatar:list[index]['type'] == 0 ? data.avatar: '',isNetwork: list[index]['type'] == 0 ? data.isAvatarFromNet() : false,username:list[index]['nickname'],userType:data.type);
-                    }else{
-                      return ChatContentView(type:messageList[index]['type'],text:messageList[index]['text'],avatar:messageList[index]['type'] == 0 ? data.avatar: '',isNetwork: messageList[index]['type'] == 0 ? data.isAvatarFromNet() : false,username:data.title,userType:data.type);
-                    }
+                      return ChatContentView(type:list[index]['type'],text:list[index]['text'],avatar:list[index]['type'] == 0 ? data.avatar: '',isNetwork: list[index]['type'] == 0 ? data.isAvatarFromNet() : false,username:"",userType:data.type);
                   },
                   itemCount:type == 1 ? list.length : messageList.length ,
                   )

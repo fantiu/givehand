@@ -37,7 +37,7 @@ class Conversation {
         assert(updateAt != null);
         
 static  List<Conversation> mockConversations  = [
-    /*new Conversation(
+    new Conversation(
       avatar: 'assets/images/ic_wx_games.png',
       title: '会话标题',
       titleColor: 0xff586b95,
@@ -46,6 +46,6 @@ static  List<Conversation> mockConversations  = [
       groupId: 000001,
       userId:"000100",
       type: 1
-    ),*/
+    ),
 ];
 }

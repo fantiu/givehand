@@ -13,7 +13,7 @@ class WebSocketProvide with ChangeNotifier{
   var users = [];
   var groups =[];
   var historyMessage = [];//接收到哦的所有的历史消息
-  var messageList = []; // 所有消息页面人员
+  var messageList = [];
   var currentMessageList = [];//选择进入详情页的消息历史记录
   var connecting = false;//websocket连接状态
   IOWebSocketChannel channel;
@@ -28,8 +28,8 @@ class WebSocketProvide with ChangeNotifier{
       print(now.millisecondsSinceEpoch);//单位毫秒，13位时间戳
       print(now.microsecondsSinceEpoch);//单位微秒,16位时间戳
       */
-      uid = "flutter_${now.microsecondsSinceEpoch}";
-      nickname = "flutter_${Random().nextInt(100)}";
+      uid = "c_${now.microsecondsSinceEpoch}";
+      nickname = "c_${Random().nextInt(100)}";
       var userInfoData = {
         "uid" : uid,
         "nickname" : nickname
@@ -41,11 +41,11 @@ class WebSocketProvide with ChangeNotifier{
       uid = userInfoData['uid'];
       nickname = userInfoData['nickname'];
     }
-    return await createWebsocket();
+    return await createWebsocket(uid);
     // monitorMessage();
   }
-  createWebsocket() async {//创建连接并且发送鉴别身份信息
-    channel = await new IOWebSocketChannel.connect('ws://swmabby.cn:3001');
+  createWebsocket(uid) async {//创建连接并且发送鉴别身份信息
+    channel = await new IOWebSocketChannel.connect('ws://swmabby.cn:8090/socketServer/'+uid);
     var obj = {
       "uid": uid,
       "type": 1,
@@ -64,7 +64,10 @@ class WebSocketProvide with ChangeNotifier{
     connecting = true;
     var obj = jsonDecode(data);
     print("websocket listen message: $data");
-    if(obj['type'] == 1){ // 获取聊天室的人员与群列表
+    historyMessage.add(obj);
+    // messageList.add(obj);
+
+    /*if(obj['type'] == 1){ // 获取聊天室的人员与群列表
       messageList = [];
       print("websocket listen message type1: $obj['msg']");
       users = obj['users'];
@@ -110,11 +113,11 @@ class WebSocketProvide with ChangeNotifier{
           }
         }
       }
-    }
+    }*/
     notifyListeners();
   }
   sendMessage(type,data,index){//发送消息
-    print("websocket send message: userid: ${messageList[index].userId} , group id ${messageList[index].groupId}");
+    /*print("websocket send message: userid: ${messageList[index].userId} , group id ${messageList[index].groupId}");
     var _bridge = [];
     if(messageList[index].userId != null){
       _bridge..add(messageList[index].userId)..add(uid);
@@ -122,18 +125,18 @@ class WebSocketProvide with ChangeNotifier{
     int _groupId;
     if(messageList[index].groupId != null){
       _groupId = messageList[index].groupId;
-    }
+    }*/
     // print(_bridge);
     var obj = {
       "uid": uid,
       "type": 2,
       "nickname": nickname,
       "msg": data,
-      "bridge": _bridge ,
-      "groupId": _groupId
+      //"bridge": _bridge ,
+      "groupId": 000001
     };
     String text = json.encode(obj).toString();
-    print(text);
+    // print(text);
     channel.sink.add(text);
   }
   onError(error){
@@ -142,7 +145,7 @@ class WebSocketProvide with ChangeNotifier{
 
   void onDone() {
     print('websocket断开了');
-    createWebsocket();
+    createWebsocket(uid);
     print('websocket重连');
   }
 
